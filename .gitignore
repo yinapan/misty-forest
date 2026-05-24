@@ -1,0 +1,9 @@
+node_modules/
+dist/
+coverage/
+*.js.map
+.env
+.agent_context/
+.multica/
+CLAUDE.md
+reply.md

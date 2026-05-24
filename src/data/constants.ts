@@ -1,0 +1,25 @@
+export const HP = {
+  INITIAL: 100,
+  MAX: 100,
+  CORRECT_FIRST: 10,
+  CORRECT_WITH_HINT: 5,
+  WRONG_FIRST: 10,
+  WRONG_SECOND: 15,
+  WRONG_THIRD: 20,
+  HINT_LEVEL_1: 5,
+  HINT_LEVEL_2: 10,
+  HINT_LEVEL_3: 15,
+  HEAL_ITEM: 20,
+  TRAP_MIN: 10,
+  TRAP_MAX: 20,
+} as const;
+
+export const GAME = {
+  MARKS_TO_WIN: 5,
+  MAX_ATTEMPTS_PER_PUZZLE: 3,
+  MAX_HINTS_PER_PUZZLE: 3,
+  MAX_ITEMS: 3,
+  ITEM_DROP_CHANCE: 0.3,
+} as const;
+
+export const HINT_COSTS = [HP.HINT_LEVEL_1, HP.HINT_LEVEL_2, HP.HINT_LEVEL_3] as const;
