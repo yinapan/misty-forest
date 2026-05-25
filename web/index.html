@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>迷雾森林 — 文字探险解谜</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+@keyframes fogDrift {
+  0% { background-position: 0% 50%, 100% 50%; }
+  50% { background-position: 100% 50%, 0% 50%; }
+  100% { background-position: 0% 50%, 100% 50%; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes glowPulse {
+  0%, 100% { text-shadow: 0 0 4px rgba(100, 200, 150, 0.4); }
+  50% { text-shadow: 0 0 12px rgba(100, 200, 150, 0.8); }
+}
+
+body {
+  font-family: "LXGW WenKai", "Noto Serif SC", "SimSun", serif;
+  background: #0a0f0a;
+  color: #c8d6c0;
+  min-height: 100vh;
+  overflow: hidden;
+  position: relative;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 20% 80%, rgba(20, 60, 30, 0.3) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(10, 40, 40, 0.3) 0%, transparent 50%);
+  animation: fogDrift 20s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+#app {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+#status-bar {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 12px 20px;
+  background: rgba(15, 25, 15, 0.85);
+  border: 1px solid rgba(60, 120, 80, 0.3);
+  border-radius: 8px;
+  font-size: 14px;
+  flex-shrink: 0;
+  backdrop-filter: blur(4px);
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stat-icon {
+  font-size: 16px;
+}
+
+.stat-label {
+  color: #7a9a70;
+  font-size: 12px;
+}
+
+.stat-value {
+  color: #a8e0a0;
+  font-weight: bold;
+}
+
+#hp-bar-container {
+  flex: 1;
+  height: 8px;
+  background: rgba(30, 50, 30, 0.8);
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid rgba(60, 120, 80, 0.3);
+}
+
+#hp-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #2d8a4e, #4ade80);
+  border-radius: 4px;
+  transition: width 0.5s ease, background 0.5s ease;
+}
+
+#hp-bar.danger {
+  background: linear-gradient(90deg, #8a2d2d, #de4a4a);
+}
+
+#hp-bar.warning {
+  background: linear-gradient(90deg, #8a6a2d, #dea04a);
+}
+
+#scene-header {
+  padding: 8px 16px;
+  margin-top: 12px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+#scene-name {
+  font-size: 18px;
+  color: #6ee7b7;
+  letter-spacing: 2px;
+  animation: glowPulse 3s ease-in-out infinite;
+}
+
+#scene-atmosphere {
+  font-size: 12px;
+  color: #5a8a6a;
+  margin-top: 4px;
+}
+
+#output-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  margin-top: 8px;
+  background: rgba(10, 18, 10, 0.6);
+  border: 1px solid rgba(60, 120, 80, 0.15);
+  border-radius: 8px;
+  scroll-behavior: smooth;
+}
+
+#output-area::-webkit-scrollbar {
+  width: 6px;
+}
+
+#output-area::-webkit-scrollbar-track {
+  background: rgba(10, 18, 10, 0.4);
+}
+
+#output-area::-webkit-scrollbar-thumb {
+  background: rgba(60, 120, 80, 0.4);
+  border-radius: 3px;
+}
+
+.message {
+  margin-bottom: 16px;
+  animation: fadeIn 0.3s ease;
+  line-height: 1.8;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.message.system {
+  color: #8ab890;
+  border-left: 3px solid rgba(60, 160, 80, 0.4);
+  padding-left: 12px;
+}
+
+.message.player {
+  color: #a0c8e0;
+  padding-left: 12px;
+}
+
+.message.player::before {
+  content: '> ';
+  color: #5090b0;
+}
+
+.message.error {
+  color: #e08080;
+}
+
+.message.success {
+  color: #80e0a0;
+}
+
+#input-area {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 8px;
+  background: rgba(15, 25, 15, 0.85);
+  border: 1px solid rgba(60, 120, 80, 0.3);
+  border-radius: 8px;
+  flex-shrink: 0;
+  backdrop-filter: blur(4px);
+}
+
+#player-input {
+  flex: 1;
+  background: rgba(20, 35, 20, 0.8);
+  border: 1px solid rgba(60, 120, 80, 0.3);
+  border-radius: 6px;
+  padding: 10px 14px;
+  color: #c8d6c0;
+  font-family: inherit;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+#player-input:focus {
+  border-color: rgba(100, 200, 130, 0.6);
+}
+
+#player-input::placeholder {
+  color: #4a6a4a;
+}
+
+#send-btn {
+  padding: 10px 20px;
+  background: rgba(40, 100, 60, 0.6);
+  border: 1px solid rgba(60, 160, 80, 0.4);
+  border-radius: 6px;
+  color: #a8e0a0;
+  font-family: inherit;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+#send-btn:hover {
+  background: rgba(50, 120, 70, 0.8);
+  border-color: rgba(80, 200, 100, 0.6);
+}
+
+#send-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+#quick-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.quick-btn {
+  padding: 5px 12px;
+  background: rgba(25, 45, 30, 0.7);
+  border: 1px solid rgba(60, 120, 80, 0.25);
+  border-radius: 4px;
+  color: #7a9a70;
+  font-family: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.quick-btn:hover {
+  background: rgba(35, 60, 40, 0.8);
+  color: #a8e0a0;
+  border-color: rgba(80, 160, 100, 0.4);
+}
+
+#particles {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.particle {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: rgba(100, 200, 150, 0.3);
+  border-radius: 50%;
+  animation: float linear infinite;
+}
+
+@keyframes float {
+  0% { transform: translateY(100vh) translateX(0); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(-20px) translateX(30px); opacity: 0; }
+}
+
+@media (max-width: 600px) {
+  #status-bar {
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 10px 14px;
+  }
+  #app { padding: 8px; }
+  .message { font-size: 14px; }
+}
+</style>
+</head>
+<body>
+<div id="particles"></div>
+<div id="app">
+  <div id="status-bar">
+    <div class="stat">
+      <span class="stat-icon">❤️</span>
+      <span class="stat-label">HP</span>
+      <span class="stat-value" id="hp-text">100/100</span>
+    </div>
+    <div id="hp-bar-container">
+      <div id="hp-bar" style="width: 100%"></div>
+    </div>
+    <div class="stat">
+      <span class="stat-icon">🔮</span>
+      <span class="stat-label">印记</span>
+      <span class="stat-value" id="marks-text">0/5</span>
+    </div>
+    <div class="stat">
+      <span class="stat-icon">🎒</span>
+      <span class="stat-label">道具</span>
+      <span class="stat-value" id="items-text">0</span>
+    </div>
+  </div>
+
+  <div id="scene-header">
+    <div id="scene-name">迷雾森林</div>
+    <div id="scene-atmosphere">等待进入场景...</div>
+  </div>
+
+  <div id="output-area"></div>
+
+  <div id="input-area">
+    <input type="text" id="player-input" placeholder="输入答案或指令..." autocomplete="off">
+    <button id="send-btn">发送</button>
+  </div>
+
+  <div id="quick-actions">
+    <button class="quick-btn" data-cmd="提示">💡 提示</button>
+    <button class="quick-btn" data-cmd="状态">📊 状态</button>
+    <button class="quick-btn" data-cmd="探索">👁 探索</button>
+    <button class="quick-btn" data-cmd="道具">🎒 道具</button>
+    <button class="quick-btn" data-cmd="帮助">❓ 帮助</button>
+    <button class="quick-btn" data-cmd="放弃">⏭ 放弃</button>
+    <button class="quick-btn" data-cmd="重新开始">🔄 重开</button>
+  </div>
+</div>
+
+<script src="game.bundle.js"></script>
+</body>
+</html>

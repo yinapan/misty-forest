@@ -4,9 +4,11 @@
   "description": "多 Agent 迷雾森林文字探险解谜游戏",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && npm run build:web",
+    "build:web": "esbuild web/main.ts --bundle --outfile=web/game.bundle.js --format=iife --target=es2020 --platform=browser",
     "start": "node dist/index.js",
     "dev": "ts-node src/index.ts",
+    "dev:web": "esbuild web/main.ts --bundle --outfile=web/game.bundle.js --format=iife --target=es2020 --platform=browser --servedir=web",
     "test": "jest --coverage",
     "lint": "tsc --noEmit"
   },
@@ -15,6 +17,7 @@
   "devDependencies": {
     "@types/jest": "^29.5.12",
     "@types/node": "^20.14.0",
+    "esbuild": "^0.21.0",
     "jest": "^29.7.0",
     "ts-jest": "^29.1.4",
     "ts-node": "^10.9.2",
