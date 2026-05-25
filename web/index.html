@@ -286,7 +286,6 @@ body {
   position: relative;
   flex: 1;
   min-height: 0;
-  margin-top: 8px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -322,9 +321,12 @@ body {
   display: flex;
   flex-direction: column;
   height: 100vh;
+  height: 100dvh;
   max-width: 900px;
   margin: 0 auto;
   padding: 16px;
+  overflow: hidden;
+  gap: 10px;
 }
 
 #status-bar {
@@ -392,7 +394,6 @@ body {
 
 #scene-header {
   padding: 10px 16px;
-  margin-top: 12px;
   text-align: center;
   flex-shrink: 0;
   position: relative;
@@ -487,7 +488,6 @@ body {
 #input-area {
   display: flex;
   gap: 8px;
-  margin-top: 12px;
   padding: 10px;
   background: rgba(8, 16, 8, 0.9);
   border: 1px solid rgba(60, 120, 80, 0.25);
@@ -495,6 +495,13 @@ body {
   flex-shrink: 0;
   backdrop-filter: blur(8px);
   box-shadow: 0 -2px 15px rgba(0, 0, 0, 0.3);
+}
+
+#bottom-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
 #player-input {
@@ -541,7 +548,6 @@ body {
 #quick-actions {
   display: flex;
   gap: 6px;
-  margin-top: 8px;
   flex-shrink: 0;
   flex-wrap: wrap;
 }
@@ -592,12 +598,23 @@ body {
 
 @media (max-width: 600px) {
   #status-bar { flex-wrap: wrap; gap: 10px; padding: 10px 14px; }
-  #app { padding: 8px; }
+  #app { padding: 8px; gap: 8px; }
   .message { font-size: 14px; }
   #output-area-wrapper::before,
   #output-area-wrapper::after { height: 25px; }
+  #bottom-controls { gap: 6px; }
   #quick-actions { gap: 4px; }
   .quick-btn { padding: 5px 10px; font-size: 11px; }
+}
+
+@media (max-height: 500px) {
+  #app { padding: 6px; gap: 6px; }
+  #status-bar { padding: 6px 10px; font-size: 12px; }
+  #scene-header { padding: 4px 10px; }
+  #scene-name { font-size: 16px; }
+  #output-area { padding: 12px 10px; }
+  #bottom-controls { gap: 4px; }
+  .quick-btn { padding: 4px 8px; font-size: 10px; }
 }
 </style>
 </head>
@@ -651,19 +668,21 @@ body {
     <div id="output-area"></div>
   </div>
 
-  <div id="input-area">
-    <input type="text" id="player-input" placeholder="输入答案或指令..." autocomplete="off">
-    <button id="send-btn">发送</button>
-  </div>
+  <div id="bottom-controls">
+    <div id="input-area">
+      <input type="text" id="player-input" placeholder="输入答案或指令..." autocomplete="off">
+      <button id="send-btn">发送</button>
+    </div>
 
-  <div id="quick-actions">
-    <button class="quick-btn" data-cmd="提示">💡 提示</button>
-    <button class="quick-btn" data-cmd="状态">📊 状态</button>
-    <button class="quick-btn" data-cmd="探索">👁 探索</button>
-    <button class="quick-btn" data-cmd="道具">🎒 道具</button>
-    <button class="quick-btn" data-cmd="帮助">❓ 帮助</button>
-    <button class="quick-btn" data-cmd="放弃">⏭ 放弃</button>
-    <button class="quick-btn" data-cmd="重新开始">🔄 重开</button>
+    <div id="quick-actions">
+      <button class="quick-btn" data-cmd="提示">💡 提示</button>
+      <button class="quick-btn" data-cmd="状态">📊 状态</button>
+      <button class="quick-btn" data-cmd="探索">👁 探索</button>
+      <button class="quick-btn" data-cmd="道具">🎒 道具</button>
+      <button class="quick-btn" data-cmd="帮助">❓ 帮助</button>
+      <button class="quick-btn" data-cmd="放弃">⏭ 放弃</button>
+      <button class="quick-btn" data-cmd="重新开始">🔄 重开</button>
+    </div>
   </div>
 </div>
 
